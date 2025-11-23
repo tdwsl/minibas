@@ -39,7 +39,7 @@ char zer[20] = {0};
 int err = 0;
 int maxln = 0;
 
-int lineno; char *l; char *l0;
+int lineno; char *l = zer; char *l0;
 
 FILE *out, *inp = 0;
 
@@ -63,9 +63,15 @@ int asz(int v) {
   return n;
 }
 
+char *getLine(int l);
+
 void collect() {
   char alt[MEMSZ];
   char *altp = alt;
+  char *ln = altp;
+  int lnum;
+  if(lineno) lnum = l-getLine(lineno);
+  else { strcpy(altp, l); altp += strlen(l)+1; }
   char *alkeys = altp;
   memcpy(altp, lkeys, sizeof(int)*lsz);
   altp += sizeof(int)*lsz;
@@ -88,6 +94,8 @@ void collect() {
   }
   memcpy(mem, alt, altp-alt);
   memsz = altp-alt;
+  if(lineno) l = getLine(lineno)+lnum;
+  else l = ln-alt+mem;
   lkeys = (int*)(alkeys-alt+mem);
   lines = (char**)((char*)lns-alt+mem);
   for(int i = 0; i < 26; i++)
@@ -127,7 +135,7 @@ char *getLine(int n) {
   return zer;
 }
 
-void setLine(int n, char *l) {
+void setLine(int n) {
   int k = hash(n, lsz);
   int i;
   for(i = 0; i < BUKSZ && lkeys[k*BUKSZ+i]; i++)
@@ -151,14 +159,14 @@ void setLine(int n, char *l) {
       if(!lkeys[i]) continue;
       int j;
       k = hash(lkeys[i], lsz*2);
-      for(int j = 0; j < BUKSZ && nk[k*BUKSZ+j]; j++);
+      for(j = 0; j < BUKSZ && nk[k*BUKSZ+j]; j++);
       nk[k*BUKSZ+j] = lkeys[i];
       nl[k*BUKSZ+j] = lines[i];
     }
     lkeys = nk;
     lines = nl;
     lsz *= 2;
-    setLine(n, l);
+    setLine(n);
   }
 }
 
@@ -322,7 +330,7 @@ void db(unsigned char b) {
 
 void clear() {
   data = alloc(256); dsz = 256;
-  lsz = 200*BUKSZ;
+  lsz = 64*BUKSZ;
   lines = zalloc(lsz*sizeof(char**));
   lkeys = zalloc(lsz*sizeof(int));
 }
@@ -585,13 +593,14 @@ int readLine(FILE *f) {
   }
   if(q) buf[i++] = '"';
   buf[i] = 0;
+
+  lineno = n;
   l = alloc(i+1);
   if(!l) return 1;
   strcpy(l, buf);
 
-  lineno = n;
   if(!n) runLine();
-  else setLine(lineno, l);
+  else setLine(lineno);
 
   /* clean up */
   if(err) {
