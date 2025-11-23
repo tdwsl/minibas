@@ -1,0 +1,6 @@
+5 REM"Print this file"
+10 OPEN"cat.bas"
+20 GETC
+30 IFC=-1;GOTO50
+40 PUTC:GOTO20
+50 CLOSE

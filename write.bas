@@ -1,0 +1,11 @@
+10 REM"Test file output"
+20 DIMA(40)
+25 PRINT"Text to write to test.txt: ";
+30 FORI=1;40
+40 GETC:PUTC:A(I)=C:IFC=10;GOTO60
+50 NEXTI
+60 OUTPUT"test.txt"
+70 FORJ=1;I-1
+80 PUTA(J)
+90 NEXTJ
+100 WRITE
