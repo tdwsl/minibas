@@ -92,12 +92,19 @@ void collect() {
       altp += n;
     }
   }
+  char *dat = altp;
+  memcpy(altp, data, dsz);
+  altp += dsz;
+
   memcpy(mem, alt, altp-alt);
   memsz = altp-alt;
+  data = (unsigned char*)(dat-alt+mem);
   if(lineno) l = getLine(lineno)+lnum;
   else l = ln-alt+mem;
   lkeys = (int*)(alkeys-alt+mem);
   lines = (char**)((char*)lns-alt+mem);
+  for(int i = 0; i < lsz; i++)
+    if(lines[i]) lines[i] = lines[i]-alt+mem;
   for(int i = 0; i < 26; i++)
     if(dma[i]) dima[i] = (int*)((char*)dma[i]-alt+mem);
 }
