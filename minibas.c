@@ -183,7 +183,7 @@ int evalUna();
 
 int notzero() {
   int n = evalUna();
-  if(!n) errs("division by zero");
+  if(!n) { errs("division by zero"); return 1; }
   return n;
 }
 
